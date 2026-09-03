@@ -1,0 +1,43 @@
+{
+  "name": "oxdeck",
+  "productName": "OxDeck",
+  "version": "0.1.0",
+  "description": "OxDeck — персональная программируемая панель от OxLab",
+  "main": "main.cjs",
+  "private": true,
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "start": "pnpm build && electron .",
+    "dev": "node dev.cjs",
+    "build": "vite build",
+    "check": "node --check dev.cjs && node --check main.cjs && node --check preload.cjs && tsc --noEmit && vite build",
+    "package": "pnpm package:arm64",
+    "package:arm64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=arm64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
+    "package:x64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=x64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
+    "make": "pnpm make:arm64",
+    "make:arm64": "pnpm package:arm64 && mkdir -p out/releases && ditto -c -k --sequesterRsrc --keepParent \"out/OxDeck-darwin-arm64/OxDeck.app\" \"out/releases/OxDeck-v${npm_package_version}-arm64.zip\"",
+    "make:x64": "pnpm package:x64 && mkdir -p out/releases && ditto -c -k --sequesterRsrc --keepParent \"out/OxDeck-darwin-x64/OxDeck.app\" \"out/releases/OxDeck-v${npm_package_version}-x64.zip\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polovincev/oxdeck.git"
+  },
+  "homepage": "https://github.com/polovincev/oxdeck#readme",
+  "bugs": {
+    "url": "https://github.com/polovincev/oxdeck/issues"
+  },
+  "dependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "electron": "^44.1.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.0.10"
+  }
+}
