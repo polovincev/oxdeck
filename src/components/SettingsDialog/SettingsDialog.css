@@ -1,0 +1,9 @@
+.settings-dialog > label:not(.check) { display: grid; margin-top: 16px; gap: 7px; color: #858994; font-size: calc(10px * var(--ui-scale)); font-weight: 700; text-transform: uppercase; }
+.settings-dialog select { width: 100%; height: 38px; padding: 0 10px; color: #f4f5f7; border: 1px solid rgb(255 255 255 / 12%); border-radius: 9px; background: #24262c; }
+.settings-dialog fieldset { display: flex; padding: 0; margin: 16px 0 0; gap: 7px; border: 0; }
+.settings-dialog legend { margin-bottom: 7px; color: #858994; font-size: calc(10px * var(--ui-scale)); font-weight: 700; text-transform: uppercase; }
+.settings-dialog fieldset label, .settings-dialog .check { display: flex; align-items: center; gap: 5px; font-size: calc(11px * var(--ui-scale)); }
+.settings-dialog input { accent-color: #7188ff; }
+.settings-dialog .check { margin-top: 17px; }
+.settings-dialog footer { display: flex; margin-top: 20px; justify-content: flex-end; gap: 8px; }
+.settings-dialog footer button { height: 34px; padding: 0 13px; }

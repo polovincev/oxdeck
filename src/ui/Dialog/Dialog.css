@@ -1,0 +1,26 @@
+.backdrop {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  place-items: center;
+  background: rgb(4 5 7 / 78%);
+  backdrop-filter: blur(12px);
+}
+
+.dialog {
+  width: min(460px, 100%);
+  max-height: min(680px, calc(100vh - 48px));
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 18px;
+  background: #1a1c21;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 55%);
+}
+
+.dialog > header { display: flex; align-items: center; justify-content: space-between; }
+.dialog h2 { margin: 0; font-size: calc(17px * var(--ui-scale)); }
+.dialog header small { color: #747984; font-size: calc(8px * var(--ui-scale)); font-weight: 800; letter-spacing: .14em; }
+.dialog header button { width: 28px; height: 28px; padding: 0; }
