@@ -30,6 +30,17 @@ const applications: Application[] = [
   { id: "vscode", name: "VS Code" },
 ];
 
+const windowCommands: Array<{
+  id: OxDeckWindowCommand;
+  name: string;
+}> = [
+  { id: "left", name: "Левая" },
+  { id: "right", name: "Правая" },
+  { id: "topRight", name: "Справа сверху" },
+  { id: "bottomRight", name: "Справа снизу" },
+  { id: "maximize", name: "Развернуть" },
+];
+
 type FileCardProps = {
   item: FileShelfItem;
   onRemove: (item: FileShelfItem) => void;
@@ -81,6 +92,15 @@ function Dashboard() {
   const [dropActive, setDropActive] = useState(false);
   const [files, setFiles] = useState<FileShelfItem[]>([]);
   const [version, setVersion] = useState("0.0.0");
+  const [settingsState, setSettingsState] =
+    useState<OxDeckSettingsState | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [draftMode, setDraftMode] = useState<OxDeckMode>("compact");
+  const [draftDisplayId, setDraftDisplayId] = useState<number | null>(null);
+  const [settingsError, setSettingsError] = useState("");
+  const [activeWindowCommand, setActiveWindowCommand] =
+    useState<OxDeckWindowCommand | null>(null);
+  const [windowCommandPending, setWindowCommandPending] = useState(false);
   const [status, setStatus] = useState(
     "Наведите курсор на верхний центр экрана",
   );
@@ -98,6 +118,7 @@ function Dashboard() {
   useEffect(() => {
     refreshFiles();
     window.oxdeck.getVersion().then(setVersion);
+    window.oxdeck.getSettings().then(updateSettingsState);
 
     const unsubscribeShow = window.oxdeck.onShow(() => {
       setAnimation("opening");
@@ -107,13 +128,82 @@ function Dashboard() {
       setAnimation("closing");
     });
     const unsubscribeStats = window.oxdeck.onStats(setStats);
+    const unsubscribeSettings = window.oxdeck.onSettingsChange(
+      updateSettingsState,
+    );
 
     return () => {
       unsubscribeShow();
       unsubscribeHide();
       unsubscribeStats();
+      unsubscribeSettings();
     };
   }, []);
+
+  function updateSettingsState(next: OxDeckSettingsState) {
+    setSettingsState(next);
+    if (next.settings.mode === "workspace") {
+      setStatus(
+        next.targetAvailable
+          ? "Рабочая панель закреплена на выбранном мониторе"
+          : "Выбранный монитор не подключён — временно используется компактный режим",
+      );
+    }
+  }
+
+  async function openSettings() {
+    if (!settingsState) return;
+    await window.oxdeck.focusSettings();
+    setDraftMode(settingsState.settings.mode);
+    setDraftDisplayId(
+      settingsState.settings.display?.id ??
+        settingsState.displays[0]?.id ??
+        null,
+    );
+    setSettingsError("");
+    setSettingsOpen(true);
+  }
+
+  function closeSettings() {
+    setSettingsOpen(false);
+    window.oxdeck.releaseFocus();
+  }
+
+  async function saveSettings() {
+    const result = await window.oxdeck.saveSettings({
+      mode: draftMode,
+      displayId: draftDisplayId,
+    });
+
+    if (!result.ok) {
+      setSettingsError(result.message);
+      return;
+    }
+
+    updateSettingsState(result.state);
+    closeSettings();
+    setStatus(
+      result.state.activeMode === "workspace"
+        ? "Рабочая панель закреплена на выбранном мониторе"
+        : "Наведите курсор на верхний центр экрана",
+    );
+  }
+
+  async function arrangeWindow(command: OxDeckWindowCommand, name: string) {
+    if (windowCommandPending) return;
+    setWindowCommandPending(true);
+    const result = await window.oxdeck.arrangeWindow(command);
+    setWindowCommandPending(false);
+
+    if (!result.ok) {
+      setStatus(result.message);
+      return;
+    }
+
+    setActiveWindowCommand(command);
+    setStatus(`Команда отправлена: ${name}`);
+    window.setTimeout(() => setActiveWindowCommand(null), 500);
+  }
 
   async function openApp(application: Application) {
     setStatus(`Открываю ${application.name}…`);
@@ -183,7 +273,7 @@ function Dashboard() {
 
   return (
     <main
-      className={`panel ${animation}${dropActive ? " file-drag-over" : ""}`}
+      className={`panel ${settingsState?.activeMode === "workspace" ? "workspace" : "compact"} ${animation}${dropActive ? " file-drag-over" : ""}`}
       aria-label="Панель быстрого доступа"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
@@ -196,7 +286,9 @@ function Dashboard() {
             OXDECK · OXLAB
           </p>
           <h1 className="text-[15px] leading-none font-bold tracking-[-0.02em]">
-            Мои приложения
+            {settingsState?.activeMode === "workspace"
+              ? "Рабочая панель"
+              : "Мои приложения"}
           </h1>
         </div>
         <div className="ml-auto flex gap-1.5" aria-label="Показатели системы">
@@ -219,14 +311,24 @@ function Dashboard() {
             </strong>
           </span>
         </div>
-        <button
-          className="quit"
-          type="button"
-          aria-label="Закрыть приложение"
-          onClick={() => window.oxdeck.quit()}
-        >
-          ×
-        </button>
+        <div className="window-actions">
+          <button
+            className="settings-button"
+            type="button"
+            aria-label="Открыть настройки"
+            onClick={openSettings}
+          >
+            ⚙
+          </button>
+          <button
+            className="quit"
+            type="button"
+            aria-label="Закрыть приложение"
+            onClick={() => window.oxdeck.quit()}
+          >
+            ×
+          </button>
+        </div>
       </header>
 
       <section className="apps relative z-[1] grid grid-cols-4 gap-[9px]">
@@ -247,6 +349,30 @@ function Dashboard() {
             <strong>{application.name}</strong>
           </button>
         ))}
+      </section>
+
+      <section className="window-manager" aria-label="Управление окнами">
+        <div className="window-manager-heading">
+          <strong>УПРАВЛЕНИЕ ОКНАМИ</strong>
+          <span>MACOS</span>
+        </div>
+        <div className="window-command-grid">
+          {windowCommands.map((command) => (
+            <button
+              className={`window-command ${command.id}${activeWindowCommand === command.id ? " active" : ""}`}
+              type="button"
+              key={command.id}
+              disabled={windowCommandPending}
+              title={command.name}
+              onClick={() => arrangeWindow(command.id, command.name)}
+            >
+              <span className="window-layout-icon" aria-hidden="true">
+                <i />
+              </span>
+              <strong>{command.name}</strong>
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="file-shelf" aria-label="Файловая полка">
@@ -274,6 +400,103 @@ function Dashboard() {
         <span aria-live="polite">{status}</span>
         <span className="version">v{version}</span>
       </div>
+
+      {settingsOpen && settingsState && (
+        <div className="settings-backdrop">
+          <section
+            className="settings-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-title"
+          >
+            <div className="settings-heading">
+              <div>
+                <small>OXDECK</small>
+                <h2 id="settings-title">Настройки панели</h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Закрыть настройки"
+                onClick={closeSettings}
+              >
+                ×
+              </button>
+            </div>
+
+            <fieldset className="mode-options">
+              <legend>Режим</legend>
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={draftMode === "compact"}
+                  onChange={() => setDraftMode("compact")}
+                />
+                <span>
+                  <strong>Компактный</strong>
+                  <small>Раскрывается по наведению</small>
+                </span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={draftMode === "workspace"}
+                  onChange={() => setDraftMode("workspace")}
+                />
+                <span>
+                  <strong>Рабочая панель</strong>
+                  <small>Закреплена слева на мониторе</small>
+                </span>
+              </label>
+            </fieldset>
+
+            <label className="display-select">
+              <span>Монитор</span>
+              <select
+                value={draftDisplayId ?? ""}
+                disabled={draftMode === "compact"}
+                onChange={(event) =>
+                  setDraftDisplayId(Number(event.target.value))
+                }
+              >
+                {!settingsState.displays.some(
+                  (display) => display.id === draftDisplayId,
+                ) &&
+                  settingsState.settings.display && (
+                    <option value={settingsState.settings.display.id} disabled>
+                      {settingsState.settings.display.label || "Монитор"} — не
+                      подключён
+                    </option>
+                  )}
+                {settingsState.displays.map((display) => (
+                  <option key={display.id} value={display.id}>
+                    {display.name}
+                    {display.internal ? " · Встроенный" : ""} · {display.width}×
+                    {display.height}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {settingsError && <p className="settings-error">{settingsError}</p>}
+
+            <div className="settings-actions">
+              <button type="button" onClick={closeSettings}>
+                Отмена
+              </button>
+              <button
+                className="primary"
+                type="button"
+                disabled={draftMode === "workspace" && draftDisplayId === null}
+                onClick={saveSettings}
+              >
+                Сохранить
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

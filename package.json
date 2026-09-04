@@ -8,9 +8,10 @@
   "packageManager": "pnpm@11.13.1",
   "scripts": {
     "start": "pnpm build && electron .",
-    "dev": "node dev.cjs",
-    "build": "vite build",
-    "check": "node --check dev.cjs && node --check main.cjs && node --check preload.cjs && tsc --noEmit && vite build",
+    "dev": "pnpm build:native && node dev.cjs",
+    "build": "pnpm build:native && vite build",
+    "build:native": "node scripts/build-native.cjs",
+    "check": "node --check dev.cjs && node --check main.cjs && node --check preload.cjs && node --check scripts/build-native.cjs && node --test window-layout.test.cjs && tsc --noEmit && pnpm build",
     "package": "pnpm package:arm64",
     "package:arm64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=arm64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
     "package:x64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=x64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
