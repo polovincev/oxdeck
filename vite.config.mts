@@ -5,11 +5,6 @@ export default defineConfig({
   plugins: [tailwindcss()],
   root: "src",
   base: "./",
-  build: {
-    outDir: "../dist",
-    emptyOutDir: true,
-  },
-  server: {
-    host: "127.0.0.1",
-  },
+  build: { outDir: "../dist", emptyOutDir: true },
+  server: { host: "127.0.0.1" },
 });

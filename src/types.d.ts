@@ -1,82 +1,76 @@
-declare module "*.css";
-
-type OxDeckResult =
-  | { ok: true }
-  | { ok: false; message: string };
-
-type OxDeckFile = {
-  path: string;
-  name: string;
-  exists: boolean;
-  isDirectory: boolean;
-  icon: string | null;
-};
-
-type OxDeckStats = {
-  cpu: number | null;
-  memory: number | null;
-  batteryTemperature: number | null;
-};
-
-type OxDeckMode = "compact" | "workspace";
-type OxDeckWindowCommand =
-  | "left"
-  | "right"
-  | "topRight"
-  | "bottomRight"
-  | "maximize";
-
-type OxDeckDisplay = {
-  id: number;
-  label: string;
-  name?: string;
-  internal: boolean;
-  width: number;
-  height: number;
-};
-
-type OxDeckSettingsState = {
-  settings: {
-    mode: OxDeckMode;
-    display: OxDeckDisplay | null;
+declare global {
+  type OxDeckResult = { ok: true } | { ok: false; message: string };
+  type OxDeckDisplay = {
+    id: number;
+    label: string;
+    name: string;
+    internal: boolean;
+    width: number;
+    height: number;
   };
-  displays: Array<OxDeckDisplay & { name: string }>;
-  activeMode: OxDeckMode;
-  targetAvailable: boolean;
-};
-
-interface Window {
-  oxdeck: {
-    openApp: (id: string) => Promise<OxDeckResult>;
-    getVersion: () => Promise<string>;
-    getSettings: () => Promise<OxDeckSettingsState>;
-    saveSettings: (settings: {
-      mode: OxDeckMode;
-      displayId: number | null;
-    }) => Promise<
-      | { ok: true; state: OxDeckSettingsState }
-      | { ok: false; message: string }
-    >;
-    arrangeWindow: (command: OxDeckWindowCommand) => Promise<OxDeckResult>;
-    focusSettings: () => Promise<void>;
-    releaseFocus: () => void;
-    pathForFile: (file: File) => string;
-    listFiles: () => Promise<OxDeckFile[]>;
-    addFiles: (
-      paths: string[],
-    ) => Promise<
-      | { ok: true; added: number; items: OxDeckFile[] }
-      | { ok: false; message: string }
-    >;
-    removeFile: (path: string) => Promise<OxDeckFile[]>;
-    revealFile: (path: string) => Promise<OxDeckResult>;
-    startFileDrag: (path: string) => void;
-    onShow: (callback: () => void) => () => void;
-    onHide: (callback: () => void) => () => void;
-    onStats: (callback: (stats: OxDeckStats) => void) => () => void;
-    onSettingsChange: (
-      callback: (state: OxDeckSettingsState) => void,
-    ) => () => void;
-    quit: () => void;
+  type OxDeckState = {
+    firstRun: boolean;
+    targetAvailable: boolean;
+    display: Omit<OxDeckDisplay, "name"> | null;
+    displays: OxDeckDisplay[];
+    geometry: {
+      side: import("../shared/layout").PanelSide;
+      width: import("../shared/layout").PanelWidth;
+      scale: import("../shared/layout").UiScale;
+    };
+    launchAtLogin: boolean;
+    layout: import("../shared/layout").LayoutWidget[];
   };
+  type OxDeckApplication = {
+    path: string;
+    name: string;
+    exists: boolean;
+    icon: string | null;
+  };
+  type OxDeckFile = OxDeckApplication & { isDirectory: boolean };
+  type OxDeckStats = {
+    cpu: number | null;
+    memory: number | null;
+    battery: number | null;
+    batteryTemperature: number | null;
+    disk: number | null;
+  };
+
+  interface Window {
+    oxdeck: {
+      getState(): Promise<OxDeckState>;
+      saveSettings(settings: {
+        displayId: number | null;
+        side: import("../shared/layout").PanelSide;
+        width: import("../shared/layout").PanelWidth;
+        scale: import("../shared/layout").UiScale;
+        launchAtLogin: boolean;
+      }): Promise<{ ok: true; state: OxDeckState } | { ok: false; message: string }>;
+      saveLayout(layout: import("../shared/layout").LayoutWidget[]): Promise<OxDeckResult>;
+      listApplications(): Promise<OxDeckApplication[]>;
+      pickApplication(): Promise<OxDeckApplication | null>;
+      openApp(path: string): Promise<OxDeckResult>;
+      arrangeWindow(command: import("../shared/layout").WindowCommand): Promise<OxDeckResult>;
+      setEditing(editing: boolean): void;
+      minimize(): void;
+      resizePanel(screenX: number): void;
+      finishResize(): Promise<void>;
+      pathForFile(file: File): string;
+      listFiles(): Promise<OxDeckFile[]>;
+      addFiles(paths: string[]): Promise<
+        { ok: true; added: number; items: OxDeckFile[] } | { ok: false; message: string }
+      >;
+      openFile(path: string): Promise<OxDeckResult>;
+      removeFile(path: string): Promise<OxDeckFile[]>;
+      replaceFile(path: string): Promise<OxDeckFile[]>;
+      revealFile(path: string): Promise<OxDeckResult>;
+      fileMenu(path: string): Promise<"reveal" | "replace" | "remove" | null>;
+      startFileDrag(path: string): void;
+      onStateChange(callback: (state: OxDeckState) => void): () => void;
+      onStats(callback: (stats: OxDeckStats) => void): () => void;
+      onWidthPreview(callback: (width: import("../shared/layout").PanelWidth) => void): () => void;
+    };
+  }
 }
+
+export {};
