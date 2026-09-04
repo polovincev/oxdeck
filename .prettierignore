@@ -1,0 +1,7 @@
+build
+dist
+native/build
+node_modules
+out
+pnpm-lock.yaml
+

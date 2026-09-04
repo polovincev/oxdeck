@@ -1,6 +1,10 @@
 import type { MetricId, WindowCommand } from "../shared/layout";
 
-export const commands: Array<{ id: WindowCommand; name: string; icon: string }> = [
+export const commands: Array<{
+  id: WindowCommand;
+  name: string;
+  icon: string;
+}> = [
   { id: "left", name: "Левая половина", icon: "◧" },
   { id: "right", name: "Правая половина", icon: "◨" },
   { id: "top", name: "Верхняя половина", icon: "⬒" },

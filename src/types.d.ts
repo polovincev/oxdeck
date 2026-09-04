@@ -1,3 +1,11 @@
+import type {
+  LayoutWidget,
+  PanelSide,
+  PanelWidth,
+  UiScale,
+  WindowCommand,
+} from "../shared/layout";
+
 declare global {
   type OxDeckResult = { ok: true } | { ok: false; message: string };
   type OxDeckDisplay = {
@@ -10,16 +18,15 @@ declare global {
   };
   type OxDeckState = {
     firstRun: boolean;
-    targetAvailable: boolean;
     display: Omit<OxDeckDisplay, "name"> | null;
     displays: OxDeckDisplay[];
     geometry: {
-      side: import("../shared/layout").PanelSide;
-      width: import("../shared/layout").PanelWidth;
-      scale: import("../shared/layout").UiScale;
+      side: PanelSide;
+      width: PanelWidth;
+      scale: UiScale;
     };
     launchAtLogin: boolean;
-    layout: import("../shared/layout").LayoutWidget[];
+    layout: LayoutWidget[];
   };
   type OxDeckApplication = {
     path: string;
@@ -41,24 +48,32 @@ declare global {
       getState(): Promise<OxDeckState>;
       saveSettings(settings: {
         displayId: number | null;
-        side: import("../shared/layout").PanelSide;
-        width: import("../shared/layout").PanelWidth;
-        scale: import("../shared/layout").UiScale;
+        side: PanelSide;
+        width: PanelWidth;
+        scale: UiScale;
         launchAtLogin: boolean;
-      }): Promise<{ ok: true; state: OxDeckState } | { ok: false; message: string }>;
-      saveLayout(layout: import("../shared/layout").LayoutWidget[]): Promise<OxDeckResult>;
+      }): Promise<
+        { ok: true; state: OxDeckState } | { ok: false; message: string }
+      >;
+      saveLayout(layout: LayoutWidget[]): Promise<OxDeckResult>;
       listApplications(): Promise<OxDeckApplication[]>;
-      pickApplication(): Promise<OxDeckApplication | null>;
+      pickApplication(): Promise<Pick<
+        OxDeckApplication,
+        "path" | "name"
+      > | null>;
       openApp(path: string): Promise<OxDeckResult>;
-      arrangeWindow(command: import("../shared/layout").WindowCommand): Promise<OxDeckResult>;
+      arrangeWindow(command: WindowCommand): Promise<OxDeckResult>;
       setEditing(editing: boolean): void;
       minimize(): void;
       resizePanel(screenX: number): void;
       finishResize(): Promise<void>;
       pathForFile(file: File): string;
       listFiles(): Promise<OxDeckFile[]>;
-      addFiles(paths: string[]): Promise<
-        { ok: true; added: number; items: OxDeckFile[] } | { ok: false; message: string }
+      addFiles(
+        paths: string[],
+      ): Promise<
+        | { ok: true; added: number; items: OxDeckFile[] }
+        | { ok: false; message: string }
       >;
       openFile(path: string): Promise<OxDeckResult>;
       removeFile(path: string): Promise<OxDeckFile[]>;
@@ -68,7 +83,7 @@ declare global {
       startFileDrag(path: string): void;
       onStateChange(callback: (state: OxDeckState) => void): () => void;
       onStats(callback: (stats: OxDeckStats) => void): () => void;
-      onWidthPreview(callback: (width: import("../shared/layout").PanelWidth) => void): () => void;
+      onWidthPreview(callback: (width: PanelWidth) => void): () => void;
     };
   }
 }

@@ -1,26 +1,30 @@
 export const panelWidths = [50, 60, 70, 100] as const;
 export const uiScales = [1, 1.25, 1.5] as const;
+export const windowCommands = [
+  "left",
+  "right",
+  "top",
+  "bottom",
+  "topLeft",
+  "topRight",
+  "bottomLeft",
+  "bottomRight",
+  "maximize",
+] as const;
+export const metricIds = [
+  "cpu",
+  "memory",
+  "battery",
+  "batteryTemperature",
+  "disk",
+] as const;
 export const maxColumns = 20;
 
 export type PanelWidth = (typeof panelWidths)[number];
 export type UiScale = (typeof uiScales)[number];
 export type PanelSide = "left" | "right";
-export type WindowCommand =
-  | "left"
-  | "right"
-  | "top"
-  | "bottom"
-  | "topLeft"
-  | "topRight"
-  | "bottomLeft"
-  | "bottomRight"
-  | "maximize";
-export type MetricId =
-  | "cpu"
-  | "memory"
-  | "battery"
-  | "batteryTemperature"
-  | "disk";
+export type WindowCommand = (typeof windowCommands)[number];
+export type MetricId = (typeof metricIds)[number];
 
 type BaseWidget = {
   id: string;
@@ -46,19 +50,24 @@ export type LayoutWidget = BaseWidget &
 
 export type Rect = Pick<LayoutWidget, "x" | "y" | "w" | "h">;
 
-export function recommendedUiScale(width: number, height: number, scaleFactor: number): UiScale {
-  if (scaleFactor > 1) return 1;
+export function recommendedUiScale(
+  width: number,
+  height: number,
+  scaleFactor: number,
+): UiScale {
+  if (scaleFactor > 1) {
+    return 1;
+  }
   // ponytail: coarse hardware heuristic; replace with physical-PPI detection only if Electron exposes it.
-  if (width / height >= 3 && height <= 900) return 1.5;
+  if (width / height >= 3 && height <= 900) {
+    return 1.5;
+  }
   return width >= 3800 ? 1.25 : 1;
 }
 
 export function overlaps(a: Rect, b: Rect) {
   return (
-    a.x < b.x + b.w &&
-    a.x + a.w > b.x &&
-    a.y < b.y + b.h &&
-    a.y + a.h > b.y
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
   );
 }
 
@@ -95,7 +104,9 @@ export function packWidgets(
         widget.y + widget.h <= rows &&
         !layout.slice(0, index).some((item) => overlaps(item, widget)),
     )
-  ) return { items: [...layout], hidden: 0 };
+  ) {
+    return { items: [...layout], hidden: 0 };
+  }
 
   const items: LayoutWidget[] = [];
 

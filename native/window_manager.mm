@@ -80,8 +80,12 @@ static napi_value GetActiveWindow(napi_env env, napi_callback_info info) {
         AXUIElementCopyAttributeValue(window, kAXSizeAttribute, &sizeValue) == kAXErrorSuccess &&
         AXValueGetValue((AXValueRef)positionValue, (AXValueType)kAXValueCGPointType, &position) &&
         AXValueGetValue((AXValueRef)sizeValue, (AXValueType)kAXValueCGSizeType, &size);
-    if (positionValue) CFRelease(positionValue);
-    if (sizeValue) CFRelease(sizeValue);
+    if (positionValue) {
+        CFRelease(positionValue);
+    }
+    if (sizeValue) {
+        CFRelease(sizeValue);
+    }
     CFRelease(window);
 
     if (!valid) {

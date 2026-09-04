@@ -1,5 +1,6 @@
 .dashboard {
   --ui-scale: 1;
+
   display: flex;
   width: 100%;
   height: 100%;
@@ -11,24 +12,114 @@
     #101114;
 }
 
-.toolbar { display: flex; height: 38px; flex: 0 0 38px; align-items: center; gap: 7px; }
-.toolbar > strong { font-size: calc(13px * var(--ui-scale)); letter-spacing: .16em; }
-.toolbar > span { color: #737782; font-size: calc(11px * var(--ui-scale)); font-variant-numeric: tabular-nums; }
-.toolbar .warning { color: #f1b76b; }
-.toolbar nav { display: flex; margin-left: auto; gap: 7px; }
-.toolbar button { min-width: 32px; height: 30px; padding: 0 10px; font-size: calc(11px * var(--ui-scale)); }
+.toolbar {
+  display: flex;
+  flex: 0 0 38px;
+  align-items: center;
+  gap: 7px;
+}
 
-.grid { position: relative; min-height: 0; flex: 1; overflow: hidden; }
-.slots, .widgets { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); grid-template-rows: repeat(var(--rows), var(--cell)); gap: 12px; align-content: start; }
-.slots button { min-width: 0; min-height: 0; border: 1px dashed transparent; background: transparent; }
-.editing .slots button:not(.occupied) { border-color: rgb(255 255 255 / 10%); }
-.editing .slots button:not(.occupied):hover { border-color: #7188ff; background: rgb(83 108 255 / 10%); }
-.slots .occupied { visibility: hidden; }
-.widgets { pointer-events: none; }
+.toolbar > strong {
+  font-size: calc(13px * var(--ui-scale));
+  letter-spacing: 0.16em;
+}
 
-.resize-handle { position: fixed; z-index: 20; top: 0; bottom: 0; width: 8px; cursor: ew-resize; }
-.resize-handle.left { right: 0; }
-.resize-handle.right { left: 0; }
-.resize-handle:hover { background: rgb(113 136 255 / 35%); }
+.toolbar > span {
+  color: #737782;
+  font-size: calc(11px * var(--ui-scale));
+  font-variant-numeric: tabular-nums;
+}
 
-.toast { position: fixed; z-index: 30; left: 50%; bottom: 20px; max-width: calc(100% - 40px); padding: 9px 13px; transform: translateX(-50%); border-color: rgb(255 255 255 / 14%); background: #292c34; box-shadow: 0 10px 35px rgb(0 0 0 / 45%); font-size: calc(11px * var(--ui-scale)); }
+.toolbar .warning {
+  color: #f1b76b;
+}
+
+.toolbar nav {
+  display: flex;
+  margin-left: auto;
+  gap: 7px;
+}
+
+.toolbar button {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: calc(11px * var(--ui-scale));
+}
+
+.grid {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.slots,
+.widgets {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), var(--cell));
+  gap: 12px;
+  align-content: start;
+}
+
+.slots button {
+  min-width: 0;
+  min-height: 0;
+  border: 1px dashed transparent;
+  background: transparent;
+}
+
+.editing .slots button:not(.occupied) {
+  border-color: rgb(255 255 255 / 10%);
+}
+
+.editing .slots button:not(.occupied):hover {
+  border-color: #7188ff;
+  background: rgb(83 108 255 / 10%);
+}
+
+.slots .occupied {
+  visibility: hidden;
+}
+
+.widgets {
+  pointer-events: none;
+}
+
+.resize-handle {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resize-handle.left {
+  right: 0;
+}
+
+.resize-handle.right {
+  left: 0;
+}
+
+.resize-handle:hover {
+  background: rgb(113 136 255 / 35%);
+}
+
+.toast {
+  position: fixed;
+  z-index: 30;
+  bottom: 20px;
+  left: 50%;
+  max-width: calc(100% - 40px);
+  padding: 9px 13px;
+  border-color: rgb(255 255 255 / 14%);
+  background: #292c34;
+  box-shadow: 0 10px 35px rgb(0 0 0 / 45%);
+  font-size: calc(11px * var(--ui-scale));
+  transform: translateX(-50%);
+}

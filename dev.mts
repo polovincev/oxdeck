@@ -24,21 +24,31 @@ async function main() {
       stdio: "inherit",
       env: { ...globalThis.process.env, OXDECK_RENDERER_URL: url },
     });
-    process.once("exit", () => { process = undefined; });
+    process.once("exit", () => {
+      process = undefined;
+    });
   }
 
   function rebuild() {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      if (!compile()) return;
+      if (!compile()) {
+        return;
+      }
       process?.once("exit", start);
       process?.kill();
-      if (!process) start();
+      if (!process) {
+        start();
+      }
     }, 120);
   }
 
   for (const directory of ["electron", "shared"]) {
-    watch(path.join(import.meta.dirname, directory), { recursive: true }, rebuild);
+    watch(
+      path.join(import.meta.dirname, directory),
+      { recursive: true },
+      rebuild,
+    );
   }
   start();
 }

@@ -16,8 +16,18 @@ export function getWindowBounds(command: WindowCommand, area: Rectangle) {
     bottom: { x: area.x, y: bottom, width: area.width, height: bottomHeight },
     topLeft: { x: area.x, y: area.y, width: leftWidth, height: topHeight },
     topRight: { x: right, y: area.y, width: rightWidth, height: topHeight },
-    bottomLeft: { x: area.x, y: bottom, width: leftWidth, height: bottomHeight },
-    bottomRight: { x: right, y: bottom, width: rightWidth, height: bottomHeight },
+    bottomLeft: {
+      x: area.x,
+      y: bottom,
+      width: leftWidth,
+      height: bottomHeight,
+    },
+    bottomRight: {
+      x: right,
+      y: bottom,
+      width: rightWidth,
+      height: bottomHeight,
+    },
     maximize: { ...area },
   }[command];
 }

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getWindowBounds } from "./window-layout.js";
 
-test("calculates all window regions", () => {
+void test("calculates all window regions", () => {
   const area = { x: 100, y: 24, width: 1001, height: 777 };
 
   assert.deepEqual(getWindowBounds("left", area), {

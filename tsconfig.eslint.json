@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": [
+    "dev.mts",
+    "electron",
+    "eslint.config.mts",
+    "scripts",
+    "shared",
+    "src",
+    "vite.config.mts"
+  ]
+}
