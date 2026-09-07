@@ -8,6 +8,22 @@ export const kubernetesActions = [
 ] as const;
 export type KubernetesAction = (typeof kubernetesActions)[number];
 
+export type KubernetesPod = {
+  name: string;
+  status: string;
+  ready: number;
+  total: number;
+  restarts: number;
+  healthy: boolean;
+  containers: Array<{
+    name: string;
+    kind: "app" | "init" | "sidecar" | "ephemeral";
+  }>;
+};
+
+export type KubernetesListResult<T> =
+  { ok: true; items: T[] } | { ok: false; message: string };
+
 export type KubernetesSettings = {
   context: string;
   namespaces: Record<string, string>;

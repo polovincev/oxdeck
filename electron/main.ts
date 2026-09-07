@@ -38,7 +38,11 @@ import {
   type WindowCommand,
 } from "../shared/layout.js";
 import { getWindowBounds } from "./window-layout.js";
-import { listKubernetesContexts } from "./kubernetes.js";
+import {
+  listKubernetesContexts,
+  listKubernetesNamespaces,
+  listKubernetesPods,
+} from "./kubernetes.js";
 import {
   buildKubernetesCommand,
   restoreKubernetesSettings,
@@ -794,6 +798,12 @@ function createPanel() {
 
 handle("state:get", state);
 handle("kubernetes:contexts", listKubernetesContexts);
+handle("kubernetes:namespaces", (_event, context: unknown) =>
+  listKubernetesNamespaces(context),
+);
+handle("kubernetes:pods", (_event, context: unknown, namespace: unknown) =>
+  listKubernetesPods(context, namespace),
+);
 handle("kubernetes:copy", async (_event, value: unknown) => {
   const result = buildKubernetesCommand(restoreKubernetesSettings(value));
   if (result.error) {

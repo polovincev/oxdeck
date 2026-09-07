@@ -1,77 +1,174 @@
-.kubernetes-dialog {
-  width: min(620px, calc(100vw - 48px));
+.kubernetes-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 12px;
+  overflow: hidden;
   color: #f4f5f7;
-  font-size: calc(13px * var(--ui-scale));
+  border: 0;
+  background: #121923;
+  font-size: calc(14px * var(--ui-scale, 1));
 }
 
-.kubernetes-dialog::backdrop {
-  background: rgb(4 5 7 / 78%);
-  backdrop-filter: blur(12px);
-}
-
-.kubernetes-hint {
-  color: #a2a7b3;
-}
-
-.kubernetes-fields {
+.kubernetes-screen[open] {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: end;
-  gap: 14px;
+  grid-template-rows: 48px 48px minmax(0, 1fr) 88px;
+  gap: 10px;
 }
 
-.kubernetes-dialog label {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 7px;
+.kubernetes-screen::backdrop {
+  background: #121923;
 }
 
-.kubernetes-dialog input:not([type="checkbox"]),
-.kubernetes-dialog textarea {
+.kubernetes-screen button {
+  min-height: 48px;
+  padding: 8px 14px;
+  touch-action: manipulation;
+}
+
+.kubernetes-screen input {
   width: 100%;
   min-width: 0;
-  padding: 10px;
+  height: 48px;
+  padding: 10px 12px;
   color: #f4f5f7;
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 9px;
-  background: #24262c;
+  border: 1px solid #41516b;
+  border-radius: 10px;
+  background: #192331;
+  font: inherit;
 }
 
-.kubernetes-dialog .kubernetes-check {
+.kubernetes-screen-header {
+  display: flex;
+  min-width: 0;
   align-items: center;
-  flex-direction: row;
+  gap: 16px;
 }
 
-.kubernetes-preview {
-  margin-top: 18px;
+.kubernetes-screen-header h1 {
+  margin: 0;
+  font-size: 1.2em;
 }
 
-.kubernetes-preview textarea {
-  resize: vertical;
+.kubernetes-screen-header p {
+  min-width: 0;
+  margin: 0 0 0 auto;
+  overflow: hidden;
+  color: #b4c9ed;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kubernetes-screen-header button {
+  flex-shrink: 0;
+}
+
+.kubernetes-screen-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kubernetes-screen-tabs button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kubernetes-screen-tabs span {
+  margin-right: 10px;
+  color: #afc6f5;
+}
+
+.kubernetes-screen-tabs [aria-current="step"] {
+  border-color: #99b8ff;
+  background: #304976;
+}
+
+.kubernetes-screen-command {
+  display: grid;
+  min-width: 0;
+  padding-top: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 48px 24px;
+  gap: 6px 12px;
+  border-top: 1px solid #435776;
+}
+
+.kubernetes-screen-command input {
   font-family: monospace;
-  line-height: 1.5;
 }
 
-.kubernetes-feedback {
-  min-height: 2.5em;
-  color: #b6c3ff;
-  overflow-wrap: anywhere;
+.kubernetes-screen input:focus-visible {
+  outline: 2px solid #a6beff;
+  outline-offset: 2px;
 }
 
-.kubernetes-dialog footer {
+.kubernetes-screen-command p {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  grid-column: 1 / -1;
+  color: #b9cbef;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kubernetes-manual-page {
+  display: flex;
+  min-height: 0;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kubernetes-manual-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kubernetes-manual-page > div {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
 }
 
-.kubernetes-fields > button,
-.kubernetes-dialog footer button {
-  min-height: 38px;
-  padding: 8px 12px;
+@media (width <= 600px) {
+  .kubernetes-screen-tabs span {
+    display: none;
+  }
+
+  .kubernetes-screen-tabs button {
+    padding-inline: 6px;
+    font-size: 14px;
+  }
+
+  .kubernetes-screen-header {
+    gap: 10px;
+  }
+
+  .kubernetes-screen-header h1 {
+    display: none;
+  }
 }
 
-@media (width <= 480px) {
-  .kubernetes-fields {
-    grid-template-columns: minmax(0, 1fr);
+@media (height <= 480px) {
+  .kubernetes-screen {
+    padding: 8px;
+  }
+
+  .kubernetes-screen[open] {
+    gap: 8px;
+  }
+
+  .kubernetes-manual-page {
+    gap: 8px;
   }
 }

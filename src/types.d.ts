@@ -5,7 +5,11 @@ import type {
   UiScale,
   WindowCommand,
 } from "../shared/layout";
-import type { KubernetesSettings } from "../shared/kubernetes";
+import type {
+  KubernetesSettings,
+  KubernetesListResult,
+  KubernetesPod,
+} from "../shared/kubernetes";
 
 declare global {
   type OxDeckResult = { ok: true } | { ok: false; message: string };
@@ -50,6 +54,13 @@ declare global {
       listKubernetesContexts(): Promise<
         { ok: true; contexts: string[] } | { ok: false; message: string }
       >;
+      listKubernetesNamespaces(
+        context: string,
+      ): Promise<KubernetesListResult<string>>;
+      listKubernetesPods(
+        context: string,
+        namespace: string,
+      ): Promise<KubernetesListResult<KubernetesPod>>;
       copyKubernetesCommand(
         settings: KubernetesSettings,
       ): Promise<OxDeckResult>;
