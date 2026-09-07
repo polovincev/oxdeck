@@ -985,6 +985,9 @@ handle("panel:resize-finish", async () => {
 });
 
 void app.whenReady().then(async () => {
+  if (!app.isPackaged) {
+    app.dock?.setIcon(path.join(app.getAppPath(), "assets/oxdeck.png"));
+  }
   await loadData();
   session.defaultSession.setPermissionCheckHandler(() => false);
   session.defaultSession.setPermissionRequestHandler(

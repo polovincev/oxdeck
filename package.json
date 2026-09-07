@@ -18,8 +18,8 @@
     "lint:fix": "eslint --flag unstable_native_nodejs_ts_config . --max-warnings 0 --fix && stylelint \"src/**/*.css\" --fix && prettier . --write",
     "check": "pnpm lint && pnpm format:check && tsc -p tsconfig.json && tsc -p tsconfig.node.json && pnpm build:electron && node --test build/electron/window-layout.test.js build/shared/layout.test.js && pnpm build",
     "package": "pnpm package:arm64",
-    "package:arm64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=arm64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
-    "package:x64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=x64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --ignore=^/out$",
+    "package:arm64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=arm64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --icon=assets/oxdeck.icns --ignore=^/out$",
+    "package:x64": "pnpm build && electron-packager . \"OxDeck\" --platform=darwin --arch=x64 --out=out --overwrite --asar --app-bundle-id=dev.oxlab.oxdeck --icon=assets/oxdeck.icns --ignore=^/out$",
     "make": "pnpm make:arm64",
     "make:arm64": "pnpm package:arm64 && mkdir -p out/releases && ditto -c -k --sequesterRsrc --keepParent \"out/OxDeck-darwin-arm64/OxDeck.app\" \"out/releases/OxDeck-v${npm_package_version}-arm64.zip\"",
     "make:x64": "pnpm package:x64 && mkdir -p out/releases && ditto -c -k --sequesterRsrc --keepParent \"out/OxDeck-darwin-x64/OxDeck.app\" \"out/releases/OxDeck-v${npm_package_version}-x64.zip\""
