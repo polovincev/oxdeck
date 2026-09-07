@@ -9,6 +9,7 @@ import { promisify } from "node:util";
 import {
   app,
   BrowserWindow,
+  clipboard,
   dialog,
   ipcMain,
   Menu,
@@ -37,6 +38,11 @@ import {
   type WindowCommand,
 } from "../shared/layout.js";
 import { getWindowBounds } from "./window-layout.js";
+import { listKubernetesContexts } from "./kubernetes.js";
+import {
+  buildKubernetesCommand,
+  restoreKubernetesSettings,
+} from "../shared/kubernetes.js";
 
 type DisplaySnapshot = {
   id: number;
@@ -299,6 +305,14 @@ function sanitizeLayout(value: unknown) {
     ) {
       widget = { ...base, type: "files" };
     }
+    if (
+      item.type === "kubernetes" &&
+      (base.w === 1 || base.w === 2) &&
+      base.h === 1 &&
+      !singletons.has("kubernetes")
+    ) {
+      widget = { ...base, type: "kubernetes" };
+    }
     if (widget) {
       const next = placeWidget(layout, widget, maxColumns, 100);
       if (next) {
@@ -309,6 +323,9 @@ function sanitizeLayout(value: unknown) {
         }
         if (widget.type === "files") {
           singletons.add("files");
+        }
+        if (widget.type === "kubernetes") {
+          singletons.add("kubernetes");
         }
       }
     }
@@ -776,6 +793,15 @@ function createPanel() {
 }
 
 handle("state:get", state);
+handle("kubernetes:contexts", listKubernetesContexts);
+handle("kubernetes:copy", async (_event, value: unknown) => {
+  const result = buildKubernetesCommand(restoreKubernetesSettings(value));
+  if (result.error) {
+    return { ok: false as const, message: result.error };
+  }
+  await clipboard.writeText(result.command);
+  return { ok: true as const };
+});
 handle("settings:save", async (_event, value: unknown) => {
   const next = value as {
     displayId?: unknown;

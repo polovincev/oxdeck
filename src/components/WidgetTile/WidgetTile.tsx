@@ -1,5 +1,5 @@
 import type { LayoutWidget } from "../../../shared/layout";
-import { commands, metricOptions } from "../../catalog";
+import { commands, metricOptions, kubernetesLabel } from "../../catalog";
 import { Button } from "../../ui/Button/Button";
 import { FileShelf } from "../FileShelf/FileShelf";
 import "./WidgetTile.css";
@@ -8,6 +8,8 @@ type WidgetTileProps = {
   widget: LayoutWidget;
   editing: boolean;
   stats: OxDeckStats;
+  kubernetesContext: string;
+  kubernetesNamespace: string;
   onActivate: (widget: LayoutWidget) => void;
   onConfigure: (widget: LayoutWidget) => void;
   onResize: (widget: LayoutWidget, width: number, height: number) => void;
@@ -43,6 +45,8 @@ export function WidgetTile({
   widget,
   editing,
   stats,
+  kubernetesContext,
+  kubernetesNamespace,
   onActivate,
   onConfigure,
   onResize,
@@ -101,9 +105,23 @@ export function WidgetTile({
       {widget.type === "files" && (
         <FileShelf editing={editing} notify={onStatus} />
       )}
+      {widget.type === "kubernetes" && (
+        <Button
+          className="widget-body kubernetes-body"
+          type="button"
+          disabled={editing}
+          onClick={() => onActivate(widget)}
+        >
+          <strong>{kubernetesLabel}</strong>
+          <small title={kubernetesContext}>
+            {kubernetesContext || "Выберите контекст"}
+          </small>
+          <small title={kubernetesNamespace}>{kubernetesNamespace}</small>
+        </Button>
+      )}
       {editing && (
         <div className="widget-tools">
-          {widget.type !== "files" && (
+          {widget.type !== "files" && widget.type !== "kubernetes" && (
             <Button
               type="button"
               aria-label="Настроить"
@@ -112,7 +130,7 @@ export function WidgetTile({
               •••
             </Button>
           )}
-          {widget.type === "metric" && (
+          {(widget.type === "metric" || widget.type === "kubernetes") && (
             <Button
               type="button"
               aria-label="Изменить размер"

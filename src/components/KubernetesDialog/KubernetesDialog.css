@@ -1,0 +1,77 @@
+.kubernetes-dialog {
+  width: min(620px, calc(100vw - 48px));
+  color: #f4f5f7;
+  font-size: calc(13px * var(--ui-scale));
+}
+
+.kubernetes-dialog::backdrop {
+  background: rgb(4 5 7 / 78%);
+  backdrop-filter: blur(12px);
+}
+
+.kubernetes-hint {
+  color: #a2a7b3;
+}
+
+.kubernetes-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 14px;
+}
+
+.kubernetes-dialog label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.kubernetes-dialog input:not([type="checkbox"]),
+.kubernetes-dialog textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  color: #f4f5f7;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 9px;
+  background: #24262c;
+}
+
+.kubernetes-dialog .kubernetes-check {
+  align-items: center;
+  flex-direction: row;
+}
+
+.kubernetes-preview {
+  margin-top: 18px;
+}
+
+.kubernetes-preview textarea {
+  resize: vertical;
+  font-family: monospace;
+  line-height: 1.5;
+}
+
+.kubernetes-feedback {
+  min-height: 2.5em;
+  color: #b6c3ff;
+  overflow-wrap: anywhere;
+}
+
+.kubernetes-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kubernetes-fields > button,
+.kubernetes-dialog footer button {
+  min-height: 38px;
+  padding: 8px 12px;
+}
+
+@media (width <= 480px) {
+  .kubernetes-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

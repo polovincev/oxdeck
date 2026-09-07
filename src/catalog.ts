@@ -31,4 +31,20 @@ export type WidgetConfig =
   | { type: "app"; path: string; name: string }
   | { type: "window"; command: WindowCommand }
   | { type: "metric"; metric: MetricId }
-  | { type: "files" };
+  | { type: "files" }
+  | { type: "kubernetes" };
+
+export const kubernetesLabel = "Kubernetes";
+export const kubernetesActionOptions = [
+  { id: "pods", name: "Список подов" },
+  { id: "logs", name: "Логи" },
+  { id: "describe", name: "Описание пода" },
+  { id: "manifest", name: "Pod в YAML / JSON" },
+  { id: "exec", name: "Вход в контейнер" },
+  { id: "forward", name: "Port-forward" },
+] as const;
+export const kubernetesLogModes = [
+  { id: "snapshot", name: "Последние логи" },
+  { id: "follow", name: "Непрерывный просмотр" },
+  { id: "previous", name: "Предыдущий запуск контейнера" },
+] as const;

@@ -5,6 +5,7 @@ import type {
   UiScale,
   WindowCommand,
 } from "../shared/layout";
+import type { KubernetesSettings } from "../shared/kubernetes";
 
 declare global {
   type OxDeckResult = { ok: true } | { ok: false; message: string };
@@ -46,6 +47,12 @@ declare global {
   interface Window {
     oxdeck: {
       getState(): Promise<OxDeckState>;
+      listKubernetesContexts(): Promise<
+        { ok: true; contexts: string[] } | { ok: false; message: string }
+      >;
+      copyKubernetesCommand(
+        settings: KubernetesSettings,
+      ): Promise<OxDeckResult>;
       saveSettings(settings: {
         displayId: number | null;
         side: PanelSide;

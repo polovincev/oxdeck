@@ -9,6 +9,9 @@ function subscribe<T>(channel: string, callback: (value: T) => void) {
 
 contextBridge.exposeInMainWorld("oxdeck", {
   getState: () => ipcRenderer.invoke("state:get"),
+  listKubernetesContexts: () => ipcRenderer.invoke("kubernetes:contexts"),
+  copyKubernetesCommand: (settings: unknown) =>
+    ipcRenderer.invoke("kubernetes:copy", settings),
   saveSettings: (settings: unknown) =>
     ipcRenderer.invoke("settings:save", settings),
   saveLayout: (layout: unknown) => ipcRenderer.invoke("layout:save", layout),

@@ -19,6 +19,15 @@
   opacity: 0.48;
 }
 
+.kubernetes-body small {
+  max-width: 100%;
+  overflow: hidden;
+  color: #a6b6ff;
+  font-size: calc(11px * var(--ui-scale));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .editing .widget {
   overflow: visible;
   border-color: rgb(113 136 255 / 45%);

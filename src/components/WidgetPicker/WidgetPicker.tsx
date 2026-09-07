@@ -1,5 +1,10 @@
 import type { LayoutWidget } from "../../../shared/layout";
-import { commands, metricOptions, type WidgetConfig } from "../../catalog";
+import {
+  commands,
+  metricOptions,
+  kubernetesLabel,
+  type WidgetConfig,
+} from "../../catalog";
 import { Button } from "../../ui/Button/Button";
 import { Dialog } from "../../ui/Dialog/Dialog";
 import "./WidgetPicker.css";
@@ -63,6 +68,13 @@ export function WidgetPicker({
       </header>
       {!picker.kind && (
         <div className="choices">
+          <Button
+            type="button"
+            disabled={layout.some(({ type }) => type === "kubernetes")}
+            onClick={() => onChoose("kubernetes")}
+          >
+            {kubernetesLabel}
+          </Button>
           <Button type="button" onClick={() => onChoose("app")}>
             Приложение
           </Button>

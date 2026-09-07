@@ -14,6 +14,11 @@ import {
   type PanelWidth,
 } from "../../../shared/layout";
 import type { WidgetConfig } from "../../catalog";
+import {
+  kubernetesNamespace,
+  restoreKubernetesSettings,
+} from "../../../shared/kubernetes";
+import { KubernetesDialog } from "../KubernetesDialog/KubernetesDialog";
 import { Button } from "../../ui/Button/Button";
 import {
   SettingsDialog,
@@ -61,7 +66,26 @@ export function Dashboard() {
   const [applications, setApplications] = useState<OxDeckApplication[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [kubernetesOpen, setKubernetesOpen] = useState(false);
+  const [kubernetes, setKubernetes] = useState(() => {
+    try {
+      return restoreKubernetesSettings(
+        JSON.parse(localStorage.getItem("oxdeck.kubernetes") ?? "null"),
+      );
+    } catch {
+      return restoreKubernetesSettings(null);
+    }
+  });
   const grid = useRef<HTMLDivElement>(null);
+
+  function updateKubernetes(next: typeof kubernetes) {
+    setKubernetes(next);
+    try {
+      localStorage.setItem("oxdeck.kubernetes", JSON.stringify(next));
+    } catch {
+      setStatus("Не удалось сохранить настройки Kubernetes");
+    }
+  }
 
   useEffect(() => {
     const updateState = (next: OxDeckState) => {
@@ -194,14 +218,14 @@ export function Dashboard() {
     if (!picker) {
       return;
     }
-    if (kind === "files") {
+    if (kind === "files" || kind === "kubernetes") {
       put({
         id: crypto.randomUUID(),
-        type: "files",
+        type: kind,
         x: picker.x,
         y: picker.y,
-        w: 2,
-        h: 2,
+        w: kind === "files" ? 2 : 1,
+        h: kind === "files" ? 2 : 1,
       });
       return;
     }
@@ -237,7 +261,7 @@ export function Dashboard() {
   function resize(widget: LayoutWidget, dw: number, dh: number) {
     let w = widget.w + dw;
     let h = widget.h + dh;
-    if (widget.type === "metric") {
+    if (widget.type === "metric" || widget.type === "kubernetes") {
       w = widget.w === 1 ? 2 : 1;
       h = 1;
     }
@@ -249,6 +273,11 @@ export function Dashboard() {
   }
 
   async function activate(widget: LayoutWidget) {
+    if (widget.type === "kubernetes") {
+      window.oxdeck.setEditing(true);
+      setKubernetesOpen(true);
+      return;
+    }
     const result =
       widget.type === "app"
         ? await window.oxdeck.openApp(widget.path)
@@ -391,6 +420,8 @@ export function Dashboard() {
               widget={widget}
               editing={editing}
               stats={stats}
+              kubernetesContext={kubernetes.context}
+              kubernetesNamespace={kubernetesNamespace(kubernetes)}
               onActivate={(item) => void activate(item)}
               onConfigure={configure}
               onResize={resize}
@@ -413,6 +444,16 @@ export function Dashboard() {
         onPointerDown={resizePanel}
       />
 
+      {kubernetesOpen && (
+        <KubernetesDialog
+          settings={kubernetes}
+          onChange={updateKubernetes}
+          onClose={() => {
+            setKubernetesOpen(false);
+            window.oxdeck.setEditing(editing);
+          }}
+        />
+      )}
       {settingsOpen && (
         <SettingsDialog
           state={state}

@@ -49,6 +49,7 @@ export type LayoutWidget = BaseWidget &
     | { type: "window"; command: WindowCommand }
     | { type: "metric"; metric: MetricId }
     | { type: "files" }
+    | { type: "kubernetes" }
   );
 
 export type Rect = Pick<LayoutWidget, "x" | "y" | "w" | "h">;
