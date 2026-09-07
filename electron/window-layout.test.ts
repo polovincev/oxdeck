@@ -17,5 +17,23 @@ void test("calculates all window regions", () => {
     width: 501,
     height: 389,
   });
+  assert.deepEqual(getWindowBounds("leftThird", area), {
+    x: 100,
+    y: 24,
+    width: 333,
+    height: 777,
+  });
+  assert.deepEqual(getWindowBounds("centerThird", area), {
+    x: 433,
+    y: 24,
+    width: 334,
+    height: 777,
+  });
+  assert.deepEqual(getWindowBounds("rightThird", area), {
+    x: 767,
+    y: 24,
+    width: 334,
+    height: 777,
+  });
   assert.deepEqual(getWindowBounds("maximize", area), area);
 });

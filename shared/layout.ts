@@ -3,6 +3,9 @@ export const uiScales = [1, 1.25, 1.5] as const;
 export const windowCommands = [
   "left",
   "right",
+  "leftThird",
+  "centerThird",
+  "rightThird",
   "top",
   "bottom",
   "topLeft",

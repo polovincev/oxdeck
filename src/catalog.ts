@@ -7,6 +7,9 @@ export const commands: Array<{
 }> = [
   { id: "left", name: "Левая половина", icon: "◧" },
   { id: "right", name: "Правая половина", icon: "◨" },
+  { id: "leftThird", name: "Левая треть", icon: "⅓←" },
+  { id: "centerThird", name: "Центральная треть", icon: "⅓" },
+  { id: "rightThird", name: "Правая треть", icon: "⅓→" },
   { id: "top", name: "Верхняя половина", icon: "⬒" },
   { id: "bottom", name: "Нижняя половина", icon: "⬓" },
   { id: "topLeft", name: "Слева сверху", icon: "◰" },

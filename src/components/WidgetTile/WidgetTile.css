@@ -65,8 +65,6 @@
   max-width: 100%;
   overflow: hidden;
   font-size: calc(14px * var(--ui-scale));
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .widget-body.metric {
@@ -95,7 +93,13 @@
 
 .widget.app .widget-body strong,
 .widget.window .widget-body strong {
+  display: -webkit-box;
+  min-height: 2.1em;
+  line-height: 1.05;
   font-weight: 400;
+  transform: translateY(2px);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .command-icon {

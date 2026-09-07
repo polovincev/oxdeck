@@ -8,10 +8,30 @@ export function getWindowBounds(command: WindowCommand, area: Rectangle) {
   const bottomHeight = area.height - topHeight;
   const right = area.x + leftWidth;
   const bottom = area.y + topHeight;
+  const firstThird = Math.floor(area.width / 3);
+  const secondThird = Math.floor((area.width * 2) / 3);
 
   return {
     left: { x: area.x, y: area.y, width: leftWidth, height: area.height },
     right: { x: right, y: area.y, width: rightWidth, height: area.height },
+    leftThird: {
+      x: area.x,
+      y: area.y,
+      width: firstThird,
+      height: area.height,
+    },
+    centerThird: {
+      x: area.x + firstThird,
+      y: area.y,
+      width: secondThird - firstThird,
+      height: area.height,
+    },
+    rightThird: {
+      x: area.x + secondThird,
+      y: area.y,
+      width: area.width - secondThird,
+      height: area.height,
+    },
     top: { x: area.x, y: area.y, width: area.width, height: topHeight },
     bottom: { x: area.x, y: bottom, width: area.width, height: bottomHeight },
     topLeft: { x: area.x, y: area.y, width: leftWidth, height: topHeight },
