@@ -33,7 +33,7 @@ export type WidgetConfig =
   | { type: "metric"; metric: MetricId }
   | { type: "files" }
   | { type: "kubernetes" }
-  | { type: "rewrite" };
+  | { type: "rewrite"; instruction?: string };
 
 export const rewriteLabels = {
   idle: "Переписать текст",

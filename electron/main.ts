@@ -37,6 +37,7 @@ import {
   type UiScale,
   type WindowCommand,
 } from "../shared/layout.js";
+import { isRewriteInstruction } from "../shared/rewrite.js";
 import { getWindowBounds } from "./window-layout.js";
 import { rewriteClipboard, stopRewrite } from "./rewrite.js";
 import {
@@ -322,9 +323,16 @@ function sanitizeLayout(value: unknown) {
       item.type === "rewrite" &&
       base.w === 1 &&
       base.h === 1 &&
+      (!("instruction" in item) || isRewriteInstruction(item.instruction)) &&
       !singletons.has("rewrite")
     ) {
-      widget = { ...base, type: "rewrite" };
+      widget = {
+        ...base,
+        type: "rewrite",
+        ...(typeof item.instruction === "string"
+          ? { instruction: item.instruction }
+          : {}),
+      };
     }
     if (widget) {
       const next = placeWidget(layout, widget, maxColumns, 100);
@@ -807,7 +815,12 @@ function createPanel() {
 }
 
 handle("state:get", state);
-handle("clipboard:rewrite", () => rewriteClipboard(clipboard));
+handle("clipboard:rewrite", () =>
+  rewriteClipboard(
+    clipboard,
+    settings.layout.find((widget) => widget.type === "rewrite")?.instruction,
+  ),
+);
 handle("kubernetes:contexts", listKubernetesContexts);
 handle("kubernetes:namespaces", (_event, context: unknown) =>
   listKubernetesNamespaces(context),

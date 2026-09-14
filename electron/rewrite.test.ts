@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import {
+  defaultRewriteInstruction,
+  isRewriteInstruction,
+  maxRewriteInstructionLength,
+} from "../shared/rewrite.js";
 import { disableMcpArgs, rewriteClipboard } from "./rewrite.js";
 
 void test("rewriting overwrites a changed clipboard and rejects concurrent requests", async () => {
@@ -21,7 +26,7 @@ void test("rewriting overwrites a changed clipboard and rejects concurrent reque
   const start = new Promise<void>((resolve) => {
     started = resolve;
   });
-  const request = rewriteClipboard(clipboard, (input) => {
+  const request = rewriteClipboard(clipboard, undefined, (input) => {
     assert.equal(input, "Превет!\nКак дила?");
     started();
     return response;
@@ -43,6 +48,7 @@ void test("empty input, oversized input, failed runs and empty output leave the 
         readText: () => Promise.resolve(input),
         writeText: () => assert.fail("must not replace clipboard"),
       },
+      undefined,
       () => assert.fail("must not start Codex"),
     );
     assert.equal(result.ok, false);
@@ -58,6 +64,7 @@ void test("empty input, oversized input, failed runs and empty output leave the 
             readText: () => Promise.resolve("Исходный текст"),
             writeText: () => assert.fail("must not replace clipboard"),
           },
+          undefined,
           rewrite,
         )
       ).ok,
@@ -74,11 +81,67 @@ void test("empty input, oversized input, failed runs and empty output leave the 
           return Promise.resolve();
         },
       },
+      undefined,
       () => Promise.resolve("Готово"),
     ),
     { ok: true },
   );
   assert.deepEqual(writes, ["Готово"]);
+});
+
+void test("rewriting forwards the saved instruction and defaults legacy widgets", async () => {
+  const custom =
+    'Используй «ё» и тире —. Объедини абзацы.\nСохрани "кавычки" и $(текст).';
+  for (const instruction of [undefined, custom]) {
+    const writes: string[] = [];
+    const result = await rewriteClipboard(
+      {
+        readText: () => Promise.resolve("Исходный текст"),
+        writeText: (text) => {
+          writes.push(text);
+          return Promise.resolve();
+        },
+      },
+      instruction,
+      (text, receivedInstruction) => {
+        assert.equal(text, "Исходный текст");
+        assert.equal(
+          receivedInstruction,
+          instruction ?? defaultRewriteInstruction,
+        );
+        return Promise.resolve("Готово");
+      },
+    );
+    assert.deepEqual(result, { ok: true });
+    assert.deepEqual(writes, ["Готово"]);
+  }
+});
+
+void test("invalid instructions cannot start rewriting or change the clipboard", async () => {
+  for (const instruction of [
+    null,
+    42,
+    {},
+    "",
+    " \n\t",
+    "Текст\0инструкции",
+    "я".repeat(maxRewriteInstructionLength + 1),
+  ]) {
+    assert.equal(isRewriteInstruction(instruction), false);
+    const result = await rewriteClipboard(
+      {
+        readText: () => assert.fail("must not read clipboard"),
+        writeText: () => assert.fail("must not replace clipboard"),
+      },
+      instruction,
+      () => assert.fail("must not start Codex"),
+    );
+    assert.equal(result.ok, false);
+  }
+  assert.equal(
+    isRewriteInstruction("я".repeat(maxRewriteInstructionLength)),
+    true,
+  );
 });
 
 void test("MCP disabling covers every listed server and rejects malformed configuration", () => {

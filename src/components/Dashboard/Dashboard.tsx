@@ -14,6 +14,7 @@ import {
   type PanelWidth,
 } from "../../../shared/layout";
 import type { rewriteLabels, WidgetConfig } from "../../catalog";
+import { defaultRewriteInstruction } from "../../../shared/rewrite";
 import {
   kubernetesNamespace,
   restoreKubernetesSettings,
@@ -68,6 +69,7 @@ export function Dashboard() {
   const [status, setStatus] = useState("");
   const [rewriteStatus, setRewriteStatus] =
     useState<keyof typeof rewriteLabels>("idle");
+  const [rewriteInstruction, setRewriteInstruction] = useState("");
   const [kubernetesOpen, setKubernetesOpen] = useState(false);
   const [kubernetes, setKubernetes] = useState(() => {
     try {
@@ -247,6 +249,9 @@ export function Dashboard() {
   }
 
   function configure(widget: LayoutWidget) {
+    if (widget.type === "rewrite") {
+      setRewriteInstruction(widget.instruction ?? defaultRewriteInstruction);
+    }
     setPicker({ x: widget.x, y: widget.y, id: widget.id, kind: widget.type });
     if (widget.type === "app" && !applications.length) {
       void window.oxdeck.listApplications().then(setApplications);
@@ -500,6 +505,8 @@ export function Dashboard() {
           applications={applications}
           search={search}
           onSearch={setSearch}
+          rewriteInstruction={rewriteInstruction}
+          onRewriteInstructionChange={setRewriteInstruction}
           onClose={() => setPicker(null)}
           onChoose={choose}
           onReplace={replace}

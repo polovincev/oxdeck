@@ -143,17 +143,15 @@ export function WidgetTile({
       )}
       {editing && (
         <div className="widget-tools">
-          {widget.type !== "files" &&
-            widget.type !== "kubernetes" &&
-            widget.type !== "rewrite" && (
-              <Button
-                type="button"
-                aria-label="Настроить"
-                onClick={() => onConfigure(widget)}
-              >
-                •••
-              </Button>
-            )}
+          {widget.type !== "files" && widget.type !== "kubernetes" && (
+            <Button
+              type="button"
+              aria-label="Настроить"
+              onClick={() => onConfigure(widget)}
+            >
+              •••
+            </Button>
+          )}
           {(widget.type === "metric" || widget.type === "kubernetes") && (
             <Button
               type="button"

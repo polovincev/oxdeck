@@ -1,5 +1,9 @@
 import type { LayoutWidget } from "../../../shared/layout";
 import {
+  isRewriteInstruction,
+  maxRewriteInstructionLength,
+} from "../../../shared/rewrite";
+import {
   commands,
   metricOptions,
   kubernetesLabel,
@@ -23,6 +27,8 @@ type WidgetPickerProps = {
   applications: OxDeckApplication[];
   search: string;
   onSearch: (search: string) => void;
+  rewriteInstruction: string;
+  onRewriteInstructionChange: (instruction: string) => void;
   onClose: () => void;
   onChoose: (kind: LayoutWidget["type"]) => void;
   onReplace: (widget: WidgetConfig) => void;
@@ -34,6 +40,8 @@ export function WidgetPicker({
   applications,
   search,
   onSearch,
+  rewriteInstruction,
+  onRewriteInstructionChange,
   onClose,
   onChoose,
   onReplace,
@@ -60,7 +68,9 @@ export function WidgetPicker({
   }
 
   return (
-    <Dialog className="widget-picker">
+    <Dialog
+      className={`widget-picker${picker.kind === "rewrite" ? " rewrite-picker" : ""}`}
+    >
       <header>
         <h2>{picker.kind ? "Настройка плитки" : "Новая плитка"}</h2>
         <Button type="button" onClick={onClose}>
@@ -100,6 +110,44 @@ export function WidgetPicker({
             Файловый буфер
           </Button>
         </div>
+      )}
+      {picker.kind === "rewrite" && (
+        <>
+          <label className="rewrite-instruction">
+            Инструкция
+            <textarea
+              autoFocus
+              value={rewriteInstruction}
+              maxLength={maxRewriteInstructionLength}
+              rows={12}
+              aria-describedby="rewrite-instruction-hint"
+              onChange={(event) =>
+                onRewriteInstructionChange(event.target.value)
+              }
+            />
+          </label>
+          <p id="rewrite-instruction-hint">
+            После применения нажмите «Сохранить» на панели.
+          </p>
+          <footer>
+            <Button type="button" onClick={onClose}>
+              Отмена
+            </Button>
+            <Button
+              variant="primary"
+              type="button"
+              disabled={!isRewriteInstruction(rewriteInstruction)}
+              onClick={() =>
+                onReplace({
+                  type: "rewrite",
+                  instruction: rewriteInstruction.trim(),
+                })
+              }
+            >
+              Применить
+            </Button>
+          </footer>
+        </>
       )}
       {picker.kind === "app" && (
         <>
