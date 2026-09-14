@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-09-14
+
+### Добавлено
+
+- Редактирование инструкции плитки «Переписать текст» через «Изменить → •••» с сохранением между перезапусками.
+
+### Изменено
+
+- Инструкция по умолчанию не только исправляет ошибки, но и улучшает логику, структуру и абзацы текста; при необходимости использует списки.
+
 ## [1.4.1] — 2026-09-14
 
 ### Исправлено
@@ -34,7 +44,8 @@
 - React-интерфейс и разработка через Vite.
 - Автоматическая сборка macOS-релизов для Apple Silicon и Intel.
 
-[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/polovincev/oxdeck/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/polovincev/oxdeck/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/polovincev/oxdeck/compare/v1.3.0...v1.4.0
 [0.1.0]: https://github.com/polovincev/oxdeck/releases/tag/v0.1.0
