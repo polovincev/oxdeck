@@ -51,6 +51,7 @@ declare global {
   interface Window {
     oxdeck: {
       getState(): Promise<OxDeckState>;
+      rewriteClipboard(): Promise<OxDeckResult>;
       listKubernetesContexts(): Promise<
         { ok: true; contexts: string[] } | { ok: false; message: string }
       >;

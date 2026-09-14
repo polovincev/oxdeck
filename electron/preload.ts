@@ -9,6 +9,7 @@ function subscribe<T>(channel: string, callback: (value: T) => void) {
 
 contextBridge.exposeInMainWorld("oxdeck", {
   getState: () => ipcRenderer.invoke("state:get"),
+  rewriteClipboard: () => ipcRenderer.invoke("clipboard:rewrite"),
   listKubernetesContexts: () => ipcRenderer.invoke("kubernetes:contexts"),
   listKubernetesNamespaces: (context: string) =>
     ipcRenderer.invoke("kubernetes:namespaces", context),

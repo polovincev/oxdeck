@@ -3,6 +3,7 @@ import {
   commands,
   metricOptions,
   kubernetesLabel,
+  rewriteLabels,
   type WidgetConfig,
 } from "../../catalog";
 import { Button } from "../../ui/Button/Button";
@@ -68,6 +69,13 @@ export function WidgetPicker({
       </header>
       {!picker.kind && (
         <div className="choices">
+          <Button
+            type="button"
+            disabled={layout.some(({ type }) => type === "rewrite")}
+            onClick={() => onChoose("rewrite")}
+          >
+            {rewriteLabels.idle}
+          </Button>
           <Button
             type="button"
             disabled={layout.some(({ type }) => type === "kubernetes")}

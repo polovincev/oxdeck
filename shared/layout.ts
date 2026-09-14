@@ -50,6 +50,7 @@ export type LayoutWidget = BaseWidget &
     | { type: "metric"; metric: MetricId }
     | { type: "files" }
     | { type: "kubernetes" }
+    | { type: "rewrite" }
   );
 
 export type Rect = Pick<LayoutWidget, "x" | "y" | "w" | "h">;

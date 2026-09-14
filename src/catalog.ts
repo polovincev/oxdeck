@@ -32,7 +32,14 @@ export type WidgetConfig =
   | { type: "window"; command: WindowCommand }
   | { type: "metric"; metric: MetricId }
   | { type: "files" }
-  | { type: "kubernetes" };
+  | { type: "kubernetes" }
+  | { type: "rewrite" };
+
+export const rewriteLabels = {
+  idle: "Переписать текст",
+  working: "Обработка…",
+  done: "Готово",
+} as const;
 
 export const kubernetesLabel = "Kubernetes";
 export const kubernetesSections = [

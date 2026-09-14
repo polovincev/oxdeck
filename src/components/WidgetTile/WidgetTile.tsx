@@ -1,5 +1,10 @@
 import type { LayoutWidget } from "../../../shared/layout";
-import { commands, metricOptions, kubernetesLabel } from "../../catalog";
+import {
+  commands,
+  metricOptions,
+  kubernetesLabel,
+  rewriteLabels,
+} from "../../catalog";
 import { Button } from "../../ui/Button/Button";
 import { FileShelf } from "../FileShelf/FileShelf";
 import "./WidgetTile.css";
@@ -8,6 +13,7 @@ type WidgetTileProps = {
   widget: LayoutWidget;
   editing: boolean;
   stats: OxDeckStats;
+  rewriteStatus: keyof typeof rewriteLabels;
   kubernetesContext: string;
   kubernetesNamespace: string;
   onActivate: (widget: LayoutWidget) => void;
@@ -45,6 +51,7 @@ export function WidgetTile({
   widget,
   editing,
   stats,
+  rewriteStatus,
   kubernetesContext,
   kubernetesNamespace,
   onActivate,
@@ -119,17 +126,34 @@ export function WidgetTile({
           <small title={kubernetesNamespace}>{kubernetesNamespace}</small>
         </Button>
       )}
+      {widget.type === "rewrite" && (
+        <Button
+          className="widget-body rewrite-body"
+          type="button"
+          disabled={editing || rewriteStatus === "working"}
+          aria-label={rewriteLabels.idle}
+          aria-busy={rewriteStatus === "working"}
+          onClick={() => onActivate(widget)}
+        >
+          <span className="rewrite-icon" aria-hidden="true">
+            {rewriteStatus === "done" ? "✓" : "✎"}
+          </span>
+          <strong role="status">{rewriteLabels[rewriteStatus]}</strong>
+        </Button>
+      )}
       {editing && (
         <div className="widget-tools">
-          {widget.type !== "files" && widget.type !== "kubernetes" && (
-            <Button
-              type="button"
-              aria-label="Настроить"
-              onClick={() => onConfigure(widget)}
-            >
-              •••
-            </Button>
-          )}
+          {widget.type !== "files" &&
+            widget.type !== "kubernetes" &&
+            widget.type !== "rewrite" && (
+              <Button
+                type="button"
+                aria-label="Настроить"
+                onClick={() => onConfigure(widget)}
+              >
+                •••
+              </Button>
+            )}
           {(widget.type === "metric" || widget.type === "kubernetes") && (
             <Button
               type="button"

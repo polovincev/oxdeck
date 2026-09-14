@@ -13,7 +13,7 @@ import {
   type LayoutWidget,
   type PanelWidth,
 } from "../../../shared/layout";
-import type { WidgetConfig } from "../../catalog";
+import type { rewriteLabels, WidgetConfig } from "../../catalog";
 import {
   kubernetesNamespace,
   restoreKubernetesSettings,
@@ -66,6 +66,8 @@ export function Dashboard() {
   const [applications, setApplications] = useState<OxDeckApplication[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [rewriteStatus, setRewriteStatus] =
+    useState<keyof typeof rewriteLabels>("idle");
   const [kubernetesOpen, setKubernetesOpen] = useState(false);
   const [kubernetes, setKubernetes] = useState(() => {
     try {
@@ -77,6 +79,14 @@ export function Dashboard() {
     }
   });
   const grid = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (rewriteStatus !== "done") {
+      return;
+    }
+    const timer = window.setTimeout(() => setRewriteStatus("idle"), 3000);
+    return () => window.clearTimeout(timer);
+  }, [rewriteStatus]);
 
   function updateKubernetes(next: typeof kubernetes) {
     setKubernetes(next);
@@ -218,7 +228,7 @@ export function Dashboard() {
     if (!picker) {
       return;
     }
-    if (kind === "files" || kind === "kubernetes") {
+    if (kind === "files" || kind === "kubernetes" || kind === "rewrite") {
       put({
         id: crypto.randomUUID(),
         type: kind,
@@ -273,6 +283,24 @@ export function Dashboard() {
   }
 
   async function activate(widget: LayoutWidget) {
+    if (widget.type === "rewrite") {
+      if (rewriteStatus === "working") {
+        return;
+      }
+      setRewriteStatus("working");
+      setStatus("");
+      try {
+        const result = await window.oxdeck.rewriteClipboard();
+        setRewriteStatus(result.ok ? "done" : "idle");
+        if (!result.ok) {
+          setStatus(result.message);
+        }
+      } catch {
+        setRewriteStatus("idle");
+        setStatus("Не удалось переписать текст. Попробуйте ещё раз.");
+      }
+      return;
+    }
     if (widget.type === "kubernetes") {
       window.oxdeck.setEditing(true);
       setKubernetesOpen(true);
@@ -420,6 +448,7 @@ export function Dashboard() {
               widget={widget}
               editing={editing}
               stats={stats}
+              rewriteStatus={rewriteStatus}
               kubernetesContext={kubernetes.context}
               kubernetesNamespace={kubernetesNamespace(kubernetes)}
               onActivate={(item) => void activate(item)}

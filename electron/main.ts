@@ -38,6 +38,7 @@ import {
   type WindowCommand,
 } from "../shared/layout.js";
 import { getWindowBounds } from "./window-layout.js";
+import { rewriteClipboard, stopRewrite } from "./rewrite.js";
 import {
   listKubernetesContexts,
   listKubernetesNamespaces,
@@ -317,6 +318,14 @@ function sanitizeLayout(value: unknown) {
     ) {
       widget = { ...base, type: "kubernetes" };
     }
+    if (
+      item.type === "rewrite" &&
+      base.w === 1 &&
+      base.h === 1 &&
+      !singletons.has("rewrite")
+    ) {
+      widget = { ...base, type: "rewrite" };
+    }
     if (widget) {
       const next = placeWidget(layout, widget, maxColumns, 100);
       if (next) {
@@ -325,11 +334,12 @@ function sanitizeLayout(value: unknown) {
         if (widget.type === "metric") {
           singletons.add(`metric:${widget.metric}`);
         }
-        if (widget.type === "files") {
-          singletons.add("files");
-        }
-        if (widget.type === "kubernetes") {
-          singletons.add("kubernetes");
+        if (
+          widget.type === "files" ||
+          widget.type === "kubernetes" ||
+          widget.type === "rewrite"
+        ) {
+          singletons.add(widget.type);
         }
       }
     }
@@ -797,6 +807,7 @@ function createPanel() {
 }
 
 handle("state:get", state);
+handle("clipboard:rewrite", () => rewriteClipboard(clipboard));
 handle("kubernetes:contexts", listKubernetesContexts);
 handle("kubernetes:namespaces", (_event, context: unknown) =>
   listKubernetesNamespaces(context),
@@ -1049,3 +1060,4 @@ app.on("activate", () => {
   void applyPanel();
 });
 app.on("window-all-closed", () => app.quit());
+app.on("before-quit", stopRewrite);
