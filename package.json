@@ -1,7 +1,7 @@
 {
   "name": "oxdeck",
   "productName": "OxDeck",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "OxDeck — персональная программируемая панель от OxLab",
   "main": "build/electron/main.js",
   "private": true,
