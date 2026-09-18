@@ -15,6 +15,9 @@ importers:
         specifier: ^19.2.7
         version: 19.2.8(react@19.2.8)
     devDependencies:
+      '@electron/osx-sign':
+        specifier: ^2.7.0
+        version: 2.7.0
       '@electron/packager':
         specifier: ^20.3.0
         version: 20.3.0

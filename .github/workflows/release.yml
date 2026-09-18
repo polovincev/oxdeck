@@ -31,10 +31,12 @@ jobs:
       - name: Verify tag matches package version
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
 
-      - name: Build versioned macOS archives
-        run: |
-          pnpm make:arm64
-          pnpm make:x64
+      - name: Sign and build versioned macOS archives
+        env:
+          OXDECK_SIGNING_CERTIFICATE: ${{ secrets.OXDECK_SIGNING_CERTIFICATE }}
+          OXDECK_SIGNING_PASSWORD: ${{ secrets.OXDECK_SIGNING_PASSWORD }}
+          OXDECK_SIGNING_IDENTITY: ${{ secrets.OXDECK_SIGNING_IDENTITY }}
+        run: node --experimental-strip-types scripts/release.mts
 
       - name: Publish GitHub Release
         env:

@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-09-19
+
+### Добавлено
+
+- Проверка опубликованных стабильных GitHub Releases при запуске, каждые шесть часов и по кнопке в настройках.
+- Фоновая загрузка обновления с проверкой SHA-256, сохранением архива между запусками и индикатором готовности на настройках.
+- Установка и перезапуск по кнопке без дополнительных подтверждений, с проверкой подписи новой сборки.
+- Подпись релизных сборок постоянным самоподписанным сертификатом без платного Apple Developer.
+
 ## [1.5.0] — 2026-09-14
 
 ### Добавлено
@@ -44,7 +53,8 @@
 - React-интерфейс и разработка через Vite.
 - Автоматическая сборка macOS-релизов для Apple Silicon и Intel.
 
-[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/polovincev/oxdeck/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/polovincev/oxdeck/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/polovincev/oxdeck/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/polovincev/oxdeck/compare/v1.3.0...v1.4.0

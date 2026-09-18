@@ -10,6 +10,7 @@ import type {
   KubernetesListResult,
   KubernetesPod,
 } from "../shared/kubernetes";
+import type { UpdateState } from "../shared/updates";
 
 declare global {
   type OxDeckResult = { ok: true } | { ok: false; message: string };
@@ -51,6 +52,9 @@ declare global {
   interface Window {
     oxdeck: {
       getState(): Promise<OxDeckState>;
+      getUpdateState(): Promise<UpdateState>;
+      checkForUpdates(): Promise<UpdateState>;
+      installUpdate(): Promise<UpdateState>;
       rewriteClipboard(): Promise<OxDeckResult>;
       listKubernetesContexts(): Promise<
         { ok: true; contexts: string[] } | { ok: false; message: string }
@@ -101,6 +105,7 @@ declare global {
       fileMenu(path: string): Promise<"reveal" | "replace" | "remove" | null>;
       startFileDrag(path: string): void;
       onStateChange(callback: (state: OxDeckState) => void): () => void;
+      onUpdateChange(callback: (state: UpdateState) => void): () => void;
       onStats(callback: (stats: OxDeckStats) => void): () => void;
       onWidthPreview(callback: (width: PanelWidth) => void): () => void;
     };

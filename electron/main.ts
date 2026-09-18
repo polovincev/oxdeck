@@ -41,6 +41,12 @@ import { isRewriteInstruction } from "../shared/rewrite.js";
 import { getWindowBounds } from "./window-layout.js";
 import { rewriteClipboard, stopRewrite } from "./rewrite.js";
 import {
+  checkForUpdates,
+  getUpdateState,
+  installUpdate,
+  startUpdates,
+} from "./updates.js";
+import {
   listKubernetesContexts,
   listKubernetesNamespaces,
   listKubernetesPods,
@@ -144,6 +150,10 @@ function handle<T extends unknown[], R>(
     return listener(event, ...(args as T));
   });
 }
+
+handle("updates:get", getUpdateState);
+handle("updates:check", checkForUpdates);
+handle("updates:install", () => installUpdate(stopRewrite));
 
 function on<T extends unknown[]>(
   channel: string,
@@ -1056,6 +1066,11 @@ void app.whenReady().then(async () => {
     },
   );
   createPanel();
+  startUpdates((state) => {
+    if (!panel.isDestroyed()) {
+      panel.webContents.send("updates:changed", state);
+    }
+  });
   screen.on("display-added", () => void applyPanel());
   screen.on("display-removed", () => void applyPanel());
   screen.on("display-metrics-changed", () => void applyPanel());

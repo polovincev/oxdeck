@@ -15,6 +15,7 @@ import {
 } from "../../../shared/layout";
 import type { rewriteLabels, WidgetConfig } from "../../catalog";
 import { defaultRewriteInstruction } from "../../../shared/rewrite";
+import type { UpdateState } from "../../../shared/updates";
 import {
   kubernetesNamespace,
   restoreKubernetesSettings,
@@ -49,6 +50,7 @@ function settingsFor(state: OxDeckState): SettingsDraft {
 
 export function Dashboard() {
   const [state, setState] = useState<OxDeckState | null>(null);
+  const [updateState, setUpdateState] = useState<UpdateState | null>(null);
   const [stats, setStats] = useState(emptyStats);
   const [previewWidth, setPreviewWidth] = useState<PanelWidth | null>(null);
   const [rows, setRows] = useState(1);
@@ -81,6 +83,51 @@ export function Dashboard() {
     }
   });
   const grid = useRef<HTMLDivElement>(null);
+  const updateRevision = useRef(0);
+
+  useEffect(() => {
+    let active = true;
+    const revision = updateRevision.current;
+    const unsubscribe = window.oxdeck.onUpdateChange((next) => {
+      updateRevision.current += 1;
+      setUpdateState(next);
+    });
+    void window.oxdeck
+      .getUpdateState()
+      .then((next) => {
+        if (active && revision === updateRevision.current) {
+          setUpdateState(next);
+        }
+      })
+      .catch(() => {
+        if (active && revision === updateRevision.current) {
+          setUpdateState({
+            status: "error",
+            currentVersion: "—",
+            version: null,
+            progress: null,
+            message:
+              "Не удалось получить состояние обновлений. Попробуйте проверить снова.",
+          });
+        }
+      });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  async function requestUpdate(action: () => Promise<UpdateState>) {
+    const revision = updateRevision.current;
+    try {
+      const next = await action();
+      if (revision === updateRevision.current) {
+        setUpdateState(next);
+      }
+    } catch {
+      setStatus("Не удалось выполнить обновление. Попробуйте ещё раз.");
+    }
+  }
 
   useEffect(() => {
     if (rewriteStatus !== "done") {
@@ -399,11 +446,19 @@ export function Dashboard() {
                 Изменить
               </Button>
               <Button
+                className="settings-button"
                 type="button"
-                aria-label="Настройки"
+                aria-label={
+                  updateState?.status === "ready"
+                    ? "Настройки — обновление готово к установке"
+                    : "Настройки"
+                }
                 onClick={() => openSettings()}
               >
                 ⚙
+                {updateState?.status === "ready" && (
+                  <span className="update-badge" aria-hidden="true" />
+                )}
               </Button>
               <Button
                 type="button"
@@ -492,9 +547,16 @@ export function Dashboard() {
         <SettingsDialog
           state={state}
           draft={settingsDraft}
+          updateState={updateState}
           onChange={setSettingsDraft}
           onClose={closeSettings}
           onSave={() => void saveSettings()}
+          onCheckForUpdates={() =>
+            void requestUpdate(() => window.oxdeck.checkForUpdates())
+          }
+          onInstallUpdate={() =>
+            void requestUpdate(() => window.oxdeck.installUpdate())
+          }
         />
       )}
 

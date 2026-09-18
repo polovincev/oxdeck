@@ -9,6 +9,9 @@ function subscribe<T>(channel: string, callback: (value: T) => void) {
 
 contextBridge.exposeInMainWorld("oxdeck", {
   getState: () => ipcRenderer.invoke("state:get"),
+  getUpdateState: () => ipcRenderer.invoke("updates:get"),
+  checkForUpdates: () => ipcRenderer.invoke("updates:check"),
+  installUpdate: () => ipcRenderer.invoke("updates:install"),
   rewriteClipboard: () => ipcRenderer.invoke("clipboard:rewrite"),
   listKubernetesContexts: () => ipcRenderer.invoke("kubernetes:contexts"),
   listKubernetesNamespaces: (context: string) =>
@@ -40,6 +43,8 @@ contextBridge.exposeInMainWorld("oxdeck", {
   startFileDrag: (path: string) => ipcRenderer.send("files:start-drag", path),
   onStateChange: (callback: (state: unknown) => void) =>
     subscribe("state:changed", callback),
+  onUpdateChange: (callback: (state: unknown) => void) =>
+    subscribe("updates:changed", callback),
   onStats: (callback: (stats: unknown) => void) =>
     subscribe("stats:changed", callback),
   onWidthPreview: (callback: (width: number) => void) =>
