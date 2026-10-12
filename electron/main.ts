@@ -38,7 +38,11 @@ import {
   type WindowCommand,
 } from "../shared/layout.js";
 import { isRewriteInstruction } from "../shared/rewrite.js";
-import { getWindowBounds } from "./window-layout.js";
+import {
+  findPreferredDisplay,
+  getWindowBounds,
+  type DisplaySnapshot,
+} from "./window-layout.js";
 import { rewriteClipboard, stopRewrite } from "./rewrite.js";
 import {
   checkForUpdates,
@@ -56,13 +60,6 @@ import {
   restoreKubernetesSettings,
 } from "../shared/kubernetes.js";
 
-type DisplaySnapshot = {
-  id: number;
-  label: string;
-  internal: boolean;
-  width: number;
-  height: number;
-};
 type Geometry = { side: PanelSide; width: PanelWidth; scale: UiScale };
 type Settings = {
   display: DisplaySnapshot | null;
@@ -180,27 +177,16 @@ function displayKey(display: DisplaySnapshot) {
   return `${display.label}|${display.internal}|${display.width}x${display.height}`;
 }
 
-function findDisplay(saved = settings.display) {
-  if (!saved) {
-    return null;
-  }
-  return (
-    screen.getAllDisplays().find(({ id }) => id === saved.id) ??
-    screen
-      .getAllDisplays()
-      .find(
-        (display) =>
-          display.label === saved.label &&
-          display.internal === saved.internal &&
-          display.size.width === saved.width &&
-          display.size.height === saved.height,
-      ) ??
-    null
-  );
+function findDisplay() {
+  return findPreferredDisplay(settings.display, screen.getAllDisplays());
 }
 
 function geometryFor(display: Display) {
-  const geometry = settings.geometries[displayKey(displaySnapshot(display))];
+  const geometry =
+    settings.geometries[displayKey(displaySnapshot(display))] ??
+    (settings.display
+      ? settings.geometries[displayKey(settings.display)]
+      : undefined);
   const fallback = {
     ...defaultGeometry,
     scale: recommendedUiScale(
@@ -605,18 +591,19 @@ async function applyPanel() {
   }
 
   const display = selected ?? screen.getPrimaryDisplay();
+  const shouldShow =
+    waitingForDisplay ||
+    (!manuallyHidden && (!panel.isVisible() || panel.isMinimized()));
+  waitingForDisplay = false;
+  if (shouldShow && panel.isMinimized()) {
+    panel.restore();
+  }
+  // Restoring can reinstate macOS's old coordinates, so place the panel afterwards.
   panel.setBounds(
     panelBounds(display, selected ? geometryFor(display) : defaultGeometry),
   );
   panel.setFocusable(editing || !settings.display);
-  if (
-    waitingForDisplay ||
-    (!manuallyHidden && (!panel.isVisible() || panel.isMinimized()))
-  ) {
-    waitingForDisplay = false;
-    if (panel.isMinimized()) {
-      panel.restore();
-    }
+  if (shouldShow) {
     if (settings.display) {
       panel.showInactive();
     } else {
@@ -822,6 +809,22 @@ function createPanel() {
     ? panel.loadURL(renderer)
     : panel.loadFile(path.join(app.getAppPath(), "dist/index.html")));
   panel.webContents.on("did-finish-load", () => void applyPanel());
+  panel.on("restore", () => {
+    manuallyHidden = false;
+    void applyPanel();
+  });
+  panel.on("moved", () => {
+    if (panel.isMinimized() || !settings.display) {
+      return;
+    }
+    const selected = findDisplay();
+    if (
+      !selected ||
+      screen.getDisplayMatching(panel.getBounds()).id !== selected.id
+    ) {
+      void applyPanel();
+    }
+  });
 }
 
 handle("state:get", state);

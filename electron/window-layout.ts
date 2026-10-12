@@ -1,5 +1,37 @@
-import type { Rectangle } from "electron";
+import type { Display, Rectangle } from "electron";
 import type { WindowCommand } from "../shared/layout.js";
+
+export type DisplaySnapshot = {
+  id: number;
+  label: string;
+  internal: boolean;
+  width: number;
+  height: number;
+};
+
+export function findPreferredDisplay<
+  T extends Pick<Display, "id" | "label" | "internal" | "size">,
+>(saved: DisplaySnapshot | null, displays: T[]): T | null {
+  if (!saved) {
+    return null;
+  }
+  const valid = displays.filter(
+    (display) => display.id >= 0 && display.internal === saved.internal,
+  );
+  const identified = valid.find(({ id }) => id === saved.id);
+  if (identified) {
+    return identified;
+  }
+  const matchesSize = (display: T) =>
+    display.size.width === saved.width && display.size.height === saved.height;
+  const candidates = valid.filter(
+    (display) =>
+      display.label === saved.label &&
+      (saved.label || saved.internal || matchesSize(display)),
+  );
+  // shortcut: Same-label monitors require a stable ID; add hardware IDs if reconnects change them.
+  return candidates.length === 1 ? candidates[0] : null;
+}
 
 export function getWindowBounds(command: WindowCommand, area: Rectangle) {
   const leftWidth = Math.floor(area.width / 2);

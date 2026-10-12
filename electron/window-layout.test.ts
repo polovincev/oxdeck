@@ -1,6 +1,110 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getWindowBounds } from "./window-layout.js";
+import {
+  findPreferredDisplay,
+  getWindowBounds,
+  type DisplaySnapshot,
+} from "./window-layout.js";
+
+const savedDisplay: DisplaySnapshot = {
+  id: 42,
+  label: "Touchscreen",
+  internal: false,
+  width: 1920,
+  height: 1080,
+};
+const touchscreen = {
+  id: savedDisplay.id,
+  label: savedDisplay.label,
+  internal: savedDisplay.internal,
+  size: { width: savedDisplay.width, height: savedDisplay.height },
+};
+const builtIn = {
+  id: 1,
+  label: "Built-in",
+  internal: true,
+  size: { width: 1440, height: 900 },
+};
+
+void test("keeps the chosen display through disconnects and reconnects", () => {
+  const connected = [builtIn, touchscreen];
+  assert.equal(findPreferredDisplay(null, connected), null);
+  assert.equal(findPreferredDisplay(savedDisplay, connected), touchscreen);
+  assert.equal(findPreferredDisplay(savedDisplay, [builtIn]), null);
+  const reconnected = { ...touchscreen, id: 84 };
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [builtIn, reconnected]),
+    reconnected,
+  );
+  assert.equal(savedDisplay.id, 42);
+});
+
+void test("recognizes the display after its ID and resolution change", () => {
+  const resized = {
+    ...touchscreen,
+    size: { width: 1280, height: 720 },
+  };
+  assert.equal(findPreferredDisplay(savedDisplay, [builtIn, resized]), resized);
+  const reconnected = { ...resized, id: 84 };
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [builtIn, reconnected]),
+    reconnected,
+  );
+});
+
+void test("keeps the chosen display when its label changes", () => {
+  const renamed = { ...touchscreen, label: "Renamed touchscreen" };
+  assert.equal(findPreferredDisplay(savedDisplay, [renamed, builtIn]), renamed);
+});
+
+void test("does not confuse external and built-in displays", () => {
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [{ ...touchscreen, internal: true }]),
+    null,
+  );
+});
+
+void test("does not guess between identical displays or invalid IDs", () => {
+  const first = { ...touchscreen, id: 84 };
+  const second = { ...touchscreen, id: 85 };
+  assert.equal(findPreferredDisplay(savedDisplay, [first, second]), null);
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [
+      first,
+      { ...second, size: { width: 1280, height: 720 } },
+    ]),
+    null,
+  );
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [first, touchscreen]),
+    touchscreen,
+  );
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [
+      { ...touchscreen, id: -1 },
+      { ...touchscreen, id: -10 },
+    ]),
+    null,
+  );
+});
+
+void test("handles unnamed monitors without choosing an arbitrary screen", () => {
+  const saved = { ...savedDisplay, label: "" };
+  const unnamed = { ...touchscreen, label: "", id: 84 };
+  assert.equal(findPreferredDisplay(saved, [builtIn, unnamed]), unnamed);
+  assert.equal(
+    findPreferredDisplay(saved, [
+      builtIn,
+      { ...unnamed, size: { width: 1280, height: 720 } },
+    ]),
+    null,
+  );
+  const internal = { ...builtIn, label: "", id: 2 };
+  assert.equal(
+    findPreferredDisplay({ ...saved, internal: true }, [internal, unnamed]),
+    internal,
+  );
+});
 
 void test("calculates all window regions", () => {
   const area = { x: 100, y: 24, width: 1001, height: 777 };
