@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.6.2] — 2026-10-13
+
+### Исправлено
+
+- Панель ищет монитор по названию, сохранённому в настройках; ID используется только среди подходящих экранов. При переподключении док-станции другой монитор с прежним ID больше не перехватывает панель.
+- Добавлены проверки перестановки ID экранов при переподключении док-станции: без выбранного монитора панель остаётся свёрнутой, после его подключения возвращается на него.
+
 ## [1.6.1] — 2026-10-12
 
 ### Исправлено
@@ -61,7 +68,8 @@
 - React-интерфейс и разработка через Vite.
 - Автоматическая сборка macOS-релизов для Apple Silicon и Intel.
 
-[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/polovincev/oxdeck/compare/v1.6.2...HEAD
+[1.6.2]: https://github.com/polovincev/oxdeck/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/polovincev/oxdeck/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/polovincev/oxdeck/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/polovincev/oxdeck/compare/v1.4.1...v1.5.0

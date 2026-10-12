@@ -16,7 +16,10 @@ export function findPreferredDisplay<
     return null;
   }
   const valid = displays.filter(
-    (display) => display.id >= 0 && display.internal === saved.internal,
+    (display) =>
+      display.id >= 0 &&
+      display.internal === saved.internal &&
+      (!saved.label || display.label === saved.label),
   );
   const identified = valid.find(({ id }) => id === saved.id);
   if (identified) {
@@ -25,9 +28,7 @@ export function findPreferredDisplay<
   const matchesSize = (display: T) =>
     display.size.width === saved.width && display.size.height === saved.height;
   const candidates = valid.filter(
-    (display) =>
-      display.label === saved.label &&
-      (saved.label || saved.internal || matchesSize(display)),
+    (display) => saved.label || saved.internal || matchesSize(display),
   );
   // shortcut: Same-label monitors require a stable ID; add hardware IDs if reconnects change them.
   return candidates.length === 1 ? candidates[0] : null;

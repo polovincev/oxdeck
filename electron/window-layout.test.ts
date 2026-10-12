@@ -52,9 +52,14 @@ void test("recognizes the display after its ID and resolution change", () => {
   );
 });
 
-void test("keeps the chosen display when its label changes", () => {
-  const renamed = { ...touchscreen, label: "Renamed touchscreen" };
-  assert.equal(findPreferredDisplay(savedDisplay, [renamed, builtIn]), renamed);
+void test("does not follow a reused ID to another monitor after a dock reconnect", () => {
+  const primary = { ...touchscreen, label: "Odyssey G95SD" };
+  const reconnected = { ...touchscreen, id: 84 };
+  assert.equal(findPreferredDisplay(savedDisplay, [builtIn, primary]), null);
+  assert.equal(
+    findPreferredDisplay(savedDisplay, [primary, builtIn, reconnected]),
+    reconnected,
+  );
 });
 
 void test("does not confuse external and built-in displays", () => {

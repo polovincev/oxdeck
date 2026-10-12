@@ -201,6 +201,33 @@ void test("panel waits for its display and reconnects without losing settings", 
   assert.equal(JSON.stringify(app.settings), saved);
 });
 
+void test("dock reconnect does not move the panel to the monitor that took its old ID", async () => {
+  const app = harness();
+  await app.apply();
+  const saved = JSON.stringify(app.settings);
+  const externalPrimary = {
+    ...primary,
+    id: 42,
+    internal: false,
+    label: "Odyssey G95SD",
+  };
+  app.screen.displays = [primary, externalPrimary];
+  await app.apply();
+  assert.equal(app.panel.isMinimized(), true);
+
+  const reconnected = { ...target, id: 84 };
+  app.screen.displays = [externalPrimary, primary, reconnected];
+  await app.apply();
+  assert.equal(app.panel.isVisible(), true);
+  assert.deepEqual(app.panel.bounds, {
+    x: 2208,
+    y: 24,
+    width: 1152,
+    height: 1056,
+  });
+  assert.equal(JSON.stringify(app.settings), saved);
+});
+
 void test("manual minimize lasts until restore and does not leave a stale flag", async () => {
   const app = harness();
   await app.apply();
